@@ -11,3 +11,5 @@ target/
 .mvn-classpath
 
 .idea/
+
+.DS_Store
