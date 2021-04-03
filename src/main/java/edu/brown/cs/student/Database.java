@@ -67,15 +67,19 @@ public class Database {
     prep.executeUpdate();
   }
 
+  private void createFriendsTable() throws SQLException {
+    try (Statement stat = conn.createStatement()) {
+      stat.executeUpdate("CREATE TABLE IF NOT EXISTS 'friends' "
+          + " (user TEXT, friend TEXT);");
+    }
+  }
+
   //adds friend relations to a new table
   /* if A is friends with B, need to call addFriends(a.id, b.id) and
   addFriends(b.id, a.id)
    */
   public void addFriends(String userId, String friendId) throws SQLException {
-    PreparedStatement prepTable;
-    prepTable = conn.prepareStatement("CREATE TABLE IF NOT EXISTS 'friends' "
-            + " user TEXT, friend TEXT;");
-    prepTable.executeUpdate();
+    createFriendsTable();
     PreparedStatement prep;
     prep = conn.prepareStatement("INSERT INTO friends VALUES (?, ?);");
     prep.setString(1, userId);
@@ -85,8 +89,10 @@ public class Database {
   }
 
   public List<String> findFriends(String userId) throws SQLException {
+    createFriendsTable();
     PreparedStatement prep;
     prep = conn.prepareStatement("SELECT friends.friend FROM friends WHERE friends.user = ?;");
+    prep.setString(1, userId);
     List<String> friends = new LinkedList<>();
     ResultSet rs = prep.executeQuery();
     while (rs.next()) {

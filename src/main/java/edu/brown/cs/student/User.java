@@ -1,14 +1,11 @@
 package edu.brown.cs.student;
 
-import edu.brown.cs.student.KdTree.Dimensionable;
-
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.DataFormatException;
+import java.util.Objects;
 
-public class User implements Dimensionable {
+public class User implements HasCoordinate, hasRanking<User> {
   //id is shared between a user and a person
   private final String id;
   //not sure if the id is the same as the username
@@ -49,17 +46,54 @@ public class User implements Dimensionable {
     friends.add(friendID);
   }
 
-  //todo this needs to be changed, if we end up using dimensionable interface
-  //it is there as filler for now
-  //theoretically this class should go into the kdtree and
-  //generate a person with list of preferences
+  // TODO we still need to figure out how to represent people as coordinates
+  //  This includes handling missing values.
   @Override
-  public Double getDimension(int dim) {
+  public double[] getCoordinate() {
+    return new double[0];
+  }
+
+  @Override
+  public String getID() {
+    return id;
+  }
+
+  // TODO
+  @Override
+  public List<String> getRankings() {
     return null;
   }
 
   @Override
-  public Double getDist(List<Double> location) throws DataFormatException {
-    return null;
+  public int getRanking(String obj) {
+    // TODO
+    return 0;
+  }
+
+  private Object[] getSigFields() {
+    return new Object[] {id};
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof User)) {
+      return false;
+    }
+    User second = (User) obj;
+    for (int i = 0; i < this.getSigFields().length; i++) {
+      if (!Objects.equals(this.getSigFields()[i], second.getSigFields()[i])) {
+        return false;
+      }
+    }
+    return true;
+    // return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return id.hashCode();
   }
 }
