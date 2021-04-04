@@ -76,6 +76,12 @@ public class GaleShapleyTest {
   }
 
   @Test
+  public void galeShapleyPBT() {
+    PropertyBasedTesting pbt = new PropertyBasedTesting();
+    assertTrue(pbt.nTrials(50, 100));
+  }
+
+  @Test
   public void testAlgoSelf() {
     Person p1 = new Person("A", List.of("B", "E", "D", "C", "A"));
     Person p2 = new Person("B", List.of("A", "C", "D", "E", "B"));
