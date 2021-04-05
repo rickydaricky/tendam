@@ -135,9 +135,7 @@ public class PropertyBasedTesting {
       reversePairings.put(entry.getValue(), entry.getKey());
       count++;
     }
-
-    // TODO: add other properties like checking no duplicates in pairings
-
+    
     // This for loop checks that all pairings are stable
     for (Map.Entry<Person, Person> entry : pairings.entrySet()) {
       if (!(isOneStable(p1, pairings, List.of(entry.getKey(), entry.getValue()))
