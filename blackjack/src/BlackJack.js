@@ -5,25 +5,28 @@ import { AwesomeButton } from "react-awesome-button";
 import "react-awesome-button/dist/styles.css";
 // import TextBox from "./TextBox";
 import GameMessage from "./GameMessage";
+// import { useAuth } from "../../context/AuthContext";
+// import { useDatabase } from "../../context/DatabaseContext";
 
 
-let cardsToDealer = [];
-let cardValuesToDealer = [];
+let cardsOfDealer = [];
+let cardValuesOfDealer = [];
 function BlackJack(props) {
-    // const cards = Array.from(Array(52).keys());
+    // const { currentUser } = useAuth();
+    // const { getEntry, userDatabase } = useDatabase();
+
+    // const [profileInfo, setProfileInfo] = useState({
+    //     bio: "", name: "", age: "", matches: []});
+    const sumOfValues = 364;
+
     const [deck, setDeck] = useState([]);
-    // const [playerScore, setPlayerScore] = useState(0);
-    // const [dealerScore, setDealerScore] = useState(0);
+
     const [whoWon, setWhoWon] = useState("");
 
-    const [dealerScore, setDealerScore] = useState(0);
+    const [cardsOfPlayer, setCardsOfPlayer] = useState([]);
+    const [cardValuesOfPlayer, setCardValuesOfPlayer] = useState([]);
 
-    // const [cardsToDealer, setCardsToDealer] = useState([]);
-    const [cardsToPlayer, setCardsToPlayer] = useState([]);
-    // const [cardValuesToDealer, setCardValuesToDealer] = useState([]);
-    const [cardValuesToPlayer, setCardValuesToPlayer] = useState([]);
-
-    const [bets, setBets] = useState(0);
+    const [riskPropensityScore, setRiskPropensityScore] = useState(0);
 
     useEffect(() => {
         if (deck.length === 52) {
@@ -39,18 +42,18 @@ function BlackJack(props) {
     function setUpBoard() {
         let dealerCardsAndValues = setUpCards(2);
         let playerCardsAndValues = setUpCards(2);
-        // setCardsToDealer(dealerCardsAndValues[0]);
-        cardsToDealer = dealerCardsAndValues[0];
-        setCardsToPlayer(playerCardsAndValues[0]);
-        cardValuesToDealer = dealerCardsAndValues[1];
-        // setCardValuesToDealer(dealerCardsAndValues[1]);
-        setCardValuesToPlayer(playerCardsAndValues[1]);
+        // setCardsOfDealer(dealerCardsAndValues[0]);
+        cardsOfDealer = dealerCardsAndValues[0];
+        setCardsOfPlayer(playerCardsAndValues[0]);
+        cardValuesOfDealer = dealerCardsAndValues[1];
+        // setCardValuesOfDealer(dealerCardsAndValues[1]);
+        setCardValuesOfPlayer(playerCardsAndValues[1]);
     }
 
     function setUpCards(numCards) {
         let cardsToAdd = [];
-        let cardsToPerson = [];
-        let cardsValuesToPerson = [];
+        let cardsOfPerson = [];
+        let cardsValuesOfPerson = [];
 
         for (let i = 0; i < numCards; i++) {
             let randIndex = Math.floor(Math.random() * deck.length);
@@ -58,12 +61,12 @@ function BlackJack(props) {
             setDeck(deck);
             let chosenCard = cardFromKey(chosenCardKey);
 
-            cardsValuesToPerson.push(chosenCardKey % 13 + 1);
-            cardsToPerson.push(chosenCard);
+            cardsValuesOfPerson.push(chosenCardKey % 13 + 1);
+            cardsOfPerson.push(chosenCard);
         }
 
-        cardsToAdd.push(cardsToPerson);
-        cardsToAdd.push(cardsValuesToPerson);
+        cardsToAdd.push(cardsOfPerson);
+        cardsToAdd.push(cardsValuesOfPerson);
 
         return cardsToAdd;
     }
@@ -106,24 +109,42 @@ function BlackJack(props) {
         return card;
     }
 
-    function checkGameResults() {
-        const player = calculateScore(cardValuesToDealer);
-        const dealer = calculateScore(cardValuesToPlayer);
-        if (player > 21 || (dealer < 22 && dealer >= player)) {
-            setWhoWon("You Lose :(");
-        } else {
-            //display "you win!"
-            setWhoWon("You Win!");
-        }
-    }
+    /**
+    * Makes an axios request for player's risk propensity score.
+    */
+    // const requestRiskPropensityScore = () => {
+    //     const toSend = {
+    //         playerID: playerID
+    //     };
+
+    //     let config = {
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             'Access-Control-Allow-Origin': '*',
+    //         }
+    //     };
+
+    //     axios.post(
+    //         'http://localhost:4567/ways',
+    //         toSend,
+    //         config
+    //     ).then(response => {
+    //         setRiskPropensityScore(response.data);
+    //     })
+
+    //         .catch(function (error) {
+    //             console.log(error);
+    //         });
+    // }
 
     useEffect(() => {
         checkBust();
-    }, [cardValuesToPlayer])
+    }, [cardValuesOfPlayer])
 
     function checkBust() {
-        const player = calculateScore(cardValuesToPlayer);
+        const player = calculateScore(cardValuesOfPlayer);
         if (player > 21) {
+            // update database for user's risk propensity score with final risk propensity score
             setWhoWon("You Lose :(");
         }
     }
@@ -143,18 +164,30 @@ function BlackJack(props) {
 
     function hit() {
         let playerCardsAndValues = setUpCards(1);
-        setCardsToPlayer(cardsToPlayer.concat(playerCardsAndValues[0]));
-        setCardValuesToPlayer(cardValuesToPlayer.concat(playerCardsAndValues[1]));
+        setCardsOfPlayer(cardsOfPlayer.concat(playerCardsAndValues[0]));
+        setCardValuesOfPlayer(cardValuesOfPlayer.concat(playerCardsAndValues[1]));
+        // update riskpropensityScore here
+        // setRiskPropensityScore(calculateRisk());
+    }
 
-        // checkBust();
+    function calculateRisk() {
+        let remainingSum = sumOfValues;
+        const maxBeforeBust = 21 - calculateScore(cardValuesOfPlayer);
+        let count = 0;
+        for (let i = 0; i < deck.length; i++) {
+            if (deck[i] <= maxBeforeBust) {
+                count++;
+            }
+        }
+        return count / deck.length;
     }
 
     // useEffect(() => {
     //     if (dealerScore < 17) {
     //         let dealerCardsAndValues = setUpCards(1);
-    //         setCardsToDealer(cardsToDealer.concat(dealerCardsAndValues[0]));
-    //         let newCards = cardValuesToDealer.concat(dealerCardsAndValues[1])
-    //         setCardValuesToDealer(newCards);
+    //         setCardsOfDealer(cardsOfDealer.concat(dealerCardsAndValues[0]));
+    //         let newCards = cardValuesOfDealer.concat(dealerCardsAndValues[1])
+    //         setCardValuesOfDealer(newCards);
     //         setDealerScore(calculateScore(newCards));
     //     } else {
     //         checkGameResults();
@@ -163,19 +196,32 @@ function BlackJack(props) {
 
     // useEffect(() => {
     //     if (playerStand) {
-    //         let dealerScore = calculateScore(cardValuesToDealer);
+    //         let dealerScore = calculateScore(cardValuesOfDealer);
     //     }
     // }, [playerStand])
 
+    function checkGameResults() {
+        const dealer = calculateScore(cardValuesOfDealer);
+        const player = calculateScore(cardValuesOfPlayer);
+        if (player > 21 || (dealer < 22 && dealer >= player)) {
+            // update database for user's risk propensity score with final risk propensity score
+            setWhoWon("You Lose :(");
+        } else {
+            //display "you win!"
+            // update database for user's risk propensity score with final risk propensity score
+            setWhoWon("You Win!");
+        }
+    }
+
     function stand() {
         // setPlayerStand(true);
-        // setDealerScore(calculateScore(cardValuesToDealer));
-        while (calculateScore(cardValuesToDealer) < 17) {
+        // setDealerScore(calculateScore(cardValuesOfDealer));
+        while (calculateScore(cardValuesOfDealer) < 17) {
             let dealerCardsAndValues = setUpCards(1);
-            cardsToDealer = cardsToDealer.concat(dealerCardsAndValues[0]);
-            cardValuesToDealer = cardValuesToDealer.concat(dealerCardsAndValues[1]);
-            // setCardsToDealer(cardsToDealer.concat(dealerCardsAndValues[0]));
-            // setCardValuesToDealer(cardValuesToDealer.concat(dealerCardsAndValues[1]));
+            cardsOfDealer = cardsOfDealer.concat(dealerCardsAndValues[0]);
+            cardValuesOfDealer = cardValuesOfDealer.concat(dealerCardsAndValues[1]);
+            // setCardsOfDealer(cardsOfDealer.concat(dealerCardsAndValues[0]));
+            // setCardValuesOfDealer(cardValuesOfDealer.concat(dealerCardsAndValues[1]));
         }
 
         checkGameResults();
@@ -197,13 +243,11 @@ function BlackJack(props) {
     return (
         <div>
             <GameMessage text={"Dealer's cards: "} />
-            <GameMessage text={cardsToDealer} />
+            <GameMessage text={cardsOfDealer} />
             <br />
             <GameMessage text={"Player's cards: "} />
-            <GameMessage text={cardsToPlayer} />
+            <GameMessage text={cardsOfPlayer} />
             <br />
-            {/* <TextBox label="" change={testIng} /> */}
-            {/* <AwesomeButton type="primary" onPress={requestStreetRoute}> Manual Street Input Button </AwesomeButton> */}
             <AwesomeButton type="primary" size="large" onPress={play}>Play!</AwesomeButton>
             <br />
             <AwesomeButton
