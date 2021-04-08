@@ -2,7 +2,7 @@ import './App.css';
 
 function GameMessage(props) {
     if (props.text !== "") {
-        // We only want an error box to be rendered if there is an error to display!
+        // We only want game message to be rendered if there is a message to display!
         return(
             <div className={"gameMessage"}>{props.text}</div>
         );
