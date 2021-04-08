@@ -1,10 +1,11 @@
 import './App.css';
-import React, { useState, useEffect, useRef } from 'react';
-import { AwesomeButton } from "react-awesome-button";
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 // import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
 import "react-awesome-button/dist/styles.css";
 // import TextBox from "./TextBox";
 import GameMessage from "./GameMessage";
+import './BlackJack.css';
 // import { useAuth } from "../../context/AuthContext";
 // import { useDatabase } from "../../context/DatabaseContext";
 
@@ -240,25 +241,37 @@ function BlackJack(props) {
     // function Button() {
     //     return <AwesomeButton type="primary"> Button</AwesomeButton>;
     // }
+    const Button = styled.button`
+  background-color: black;
+  color: white;
+  font-size: 20px;
+  padding: 10px 60px;
+  border-radius: 5px;
+  margin: 10px 0px;
+  cursor: pointer;
+`;
     return (
-        <div>
+        <div className="body">
+        <div className="cards">
             <GameMessage text={"Dealer's cards: "} />
             <GameMessage text={cardsOfDealer} />
             <br />
             <GameMessage text={"Player's cards: "} />
             <GameMessage text={cardsOfPlayer} />
             <br />
-            <AwesomeButton type="primary" size="large" onPress={play}>Play!</AwesomeButton>
+        </div>
+        <div className="buttons">
+            <Button onPress={play}>Play</Button>
             <br />
-            <AwesomeButton
-                type="primary"
-                size="large"
-                onPress={hit}>Hit</AwesomeButton>
+            <Button
+                onPress={hit}>Hit</Button>
             <br />
-            <AwesomeButton type="primary" size="large" onPress={stand}>Stand</AwesomeButton>
+            <Button onPress={stand}>Stand</Button>
             <br />
             <GameMessage text={whoWon} />
         </div>
+        </div>
+
     )
 }
 
