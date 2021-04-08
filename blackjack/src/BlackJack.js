@@ -1,39 +1,61 @@
 import './App.css';
 import React, { useState, useEffect, useRef } from 'react';
 import { AwesomeButton } from "react-awesome-button";
-//import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
+// import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
 import "react-awesome-button/dist/styles.css";
-import TextBox from "./TextBox";
+// import TextBox from "./TextBox";
 import GameMessage from "./GameMessage";
 
+
+let cardsToDealer = [];
+let cardValuesToDealer = [];
 function BlackJack(props) {
-    const cards = Array.from(Array(52).keys());
-    const [playerScore, setPlayerScore] = useState(0);
-    const [dealerScore, setDealerScore] = useState(0);
+    // const cards = Array.from(Array(52).keys());
+    const [deck, setDeck] = useState([]);
+    // const [playerScore, setPlayerScore] = useState(0);
+    // const [dealerScore, setDealerScore] = useState(0);
     const [whoWon, setWhoWon] = useState("");
 
-    const [cardsToDealer, setCardsToDealer] = useState([]);
+    const [dealerScore, setDealerScore] = useState(0);
+
+    // const [cardsToDealer, setCardsToDealer] = useState([]);
     const [cardsToPlayer, setCardsToPlayer] = useState([]);
-    const [cardValuesToDealer, setCardValuesToDealer] = useState([]);
+    // const [cardValuesToDealer, setCardValuesToDealer] = useState([]);
     const [cardValuesToPlayer, setCardValuesToPlayer] = useState([]);
 
+    const [bets, setBets] = useState(0);
+
+    useEffect(() => {
+        if (deck.length === 52) {
+            setUpBoard();
+        }
+    }, [deck])
+
     function play() {
-        let dealerCardsAndValues = setUpCards(2);
-        let playerCardsAndValues = setUpCards(2);
-        setCardsToDealer(cardsToDealer.concat(dealerCardsAndValues[0]));
-        setCardsToPlayer(cardsToPlayer.concat(playerCardsAndValues[0]));
-        setCardValuesToDealer(cardValuesToDealer.concat(dealerCardsAndValues[1]));
-        setCardValuesToPlayer(cardValuesToPlayer.concat(playerCardsAndValues[1]));
+        setDeck(Array.from(Array(52).keys()));
+        setWhoWon("");
     }
 
-    function setUpCards(n) {
+    function setUpBoard() {
+        let dealerCardsAndValues = setUpCards(2);
+        let playerCardsAndValues = setUpCards(2);
+        // setCardsToDealer(dealerCardsAndValues[0]);
+        cardsToDealer = dealerCardsAndValues[0];
+        setCardsToPlayer(playerCardsAndValues[0]);
+        cardValuesToDealer = dealerCardsAndValues[1];
+        // setCardValuesToDealer(dealerCardsAndValues[1]);
+        setCardValuesToPlayer(playerCardsAndValues[1]);
+    }
+
+    function setUpCards(numCards) {
         let cardsToAdd = [];
         let cardsToPerson = [];
         let cardsValuesToPerson = [];
 
-        for (let i = 0; i < n; i++) {
-            let randIndex = Math.floor(Math.random() * cards.length);
-            let chosenCardKey = cards.splice(randIndex, 1);
+        for (let i = 0; i < numCards; i++) {
+            let randIndex = Math.floor(Math.random() * deck.length);
+            let chosenCardKey = deck.splice(randIndex, 1);
+            setDeck(deck);
             let chosenCard = cardFromKey(chosenCardKey);
 
             cardsValuesToPerson.push(chosenCardKey % 13 + 1);
@@ -87,61 +109,73 @@ function BlackJack(props) {
     function checkGameResults() {
         const player = calculateScore(cardValuesToDealer);
         const dealer = calculateScore(cardValuesToPlayer);
-        if (player > dealer || dealer > 21) {
+        if (player > 21 || (dealer < 22 && dealer >= player)) {
+            setWhoWon("You Lose :(");
+        } else {
             //display "you win!"
             setWhoWon("You Win!");
         }
-        // else if (player < dealer) {
-        else {
-            //display "you lose :("
-            setWhoWon("You Lose :(");
-        }
-        // else {
-        //     //display "it's a tie"
-        //     // I think dealer wins if its a tie
-        //     setWhoWon("It's a Tie!");
-        // }
     }
 
+    useEffect(() => {
+        checkBust();
+    }, [cardValuesToPlayer])
+
     function checkBust() {
-        const player = calculateScore(cardValuesToDealer);
-        const dealer = calculateScore(cardValuesToPlayer);
+        const player = calculateScore(cardValuesToPlayer);
         if (player > 21) {
             setWhoWon("You Lose :(");
         }
-        if (dealer > 21) {
-            setWhoWon("You Win!");
-        }
     }
 
-    function calculateScore(person) {
+    function calculateScore(cards) {
         let score = 0;
-        for (let i = 0; i < person.length; i++) {
-            score += person[i];
+        for (let i = 0; i < cards.length; i++) {
+            if (cards[i] === 11 || cards[i] === 12 || cards[i] === 13) {
+                score += 10;
+            } else {
+                score += cards[i];
+            }
         }
         return score;
     }
 
 
     function hit() {
-        if (calculateScore(cardValuesToDealer) < 17) {
-            let dealerCardsAndValues = setUpCards(1);
-            setCardsToDealer(cardsToDealer.concat(dealerCardsAndValues[0]));
-            setCardValuesToDealer(cardValuesToDealer.concat(dealerCardsAndValues[1]));
-        }
-
         let playerCardsAndValues = setUpCards(1);
         setCardsToPlayer(cardsToPlayer.concat(playerCardsAndValues[0]));
         setCardValuesToPlayer(cardValuesToPlayer.concat(playerCardsAndValues[1]));
 
-        checkBust();
+        // checkBust();
     }
 
+    // useEffect(() => {
+    //     if (dealerScore < 17) {
+    //         let dealerCardsAndValues = setUpCards(1);
+    //         setCardsToDealer(cardsToDealer.concat(dealerCardsAndValues[0]));
+    //         let newCards = cardValuesToDealer.concat(dealerCardsAndValues[1])
+    //         setCardValuesToDealer(newCards);
+    //         setDealerScore(calculateScore(newCards));
+    //     } else {
+    //         checkGameResults();
+    //     }
+    // }, [dealerScore])
+
+    // useEffect(() => {
+    //     if (playerStand) {
+    //         let dealerScore = calculateScore(cardValuesToDealer);
+    //     }
+    // }, [playerStand])
+
     function stand() {
+        // setPlayerStand(true);
+        // setDealerScore(calculateScore(cardValuesToDealer));
         while (calculateScore(cardValuesToDealer) < 17) {
             let dealerCardsAndValues = setUpCards(1);
-            setCardsToDealer(cardsToDealer.concat(dealerCardsAndValues[0]));
-            setCardValuesToDealer(cardValuesToDealer.concat(dealerCardsAndValues[1]));
+            cardsToDealer = cardsToDealer.concat(dealerCardsAndValues[0]);
+            cardValuesToDealer = cardValuesToDealer.concat(dealerCardsAndValues[1]);
+            // setCardsToDealer(cardsToDealer.concat(dealerCardsAndValues[0]));
+            // setCardValuesToDealer(cardValuesToDealer.concat(dealerCardsAndValues[1]));
         }
 
         checkGameResults();
