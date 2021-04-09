@@ -306,8 +306,8 @@ function BlackJack() {
     //     return <AwesomeButton type="primary"> Button</AwesomeButton>;
     // }
     const Button = styled.button`
-  background-color: black;
-  color: white;
+  background-color: GoldenRod;
+  color: black;
   font-size: 20px;
   padding: 10px 60px;
   border-radius: 5px;
@@ -318,12 +318,12 @@ function BlackJack() {
     return (
         <div className="body">
             <div className="cards">
-                <GameMessage text={"Dealer's cards: "} />
+                <GameMessage text={"Dealer's cards: "} hidden={gameEnded}/>
                 <GameMessage text={cardsOfDealer} />
                 <Hand cards={dealerHand} />
                 <br />
-                <GameMessage text={"Player's cards: "} />
-                <GameMessage text={cardsOfPlayer} />
+                <GameMessage text={"Player's cards: "} hidden={gameEnded}/>
+                <GameMessage text={"Player total " + calculateScore(cardValuesOfPlayer)} hidden={gameEnded}/>
                 <Hand cards={playerHand} />
             </div>
             <div className="buttons">
@@ -334,7 +334,7 @@ function BlackJack() {
                 <br />
                 <Button onClick={stand} hidden={gameEnded}>Stand</Button>
                 <br />
-                <GameMessage text={whoWon} />
+                <GameMessage text={whoWon} hidden={!gameEnded} />
             </div>
         </div>
 
