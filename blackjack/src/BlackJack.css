@@ -11,7 +11,8 @@ body {
 .buttons{
     /*background-color: darkgreen;*/
     margin: 0;
-    position: absolute;
+    position: relative;
+    margin-top: 50px;
     left: 50%;
     top: 50%;
     -ms-transform: translateX(-50%);

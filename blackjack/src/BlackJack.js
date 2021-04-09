@@ -314,6 +314,7 @@ function BlackJack() {
   margin: 10px 0px;
   cursor: pointer;
 `;
+
     return (
         <div className="body">
             <div className="cards">
@@ -326,7 +327,7 @@ function BlackJack() {
                 <Hand cards={playerHand} />
             </div>
             <div className="buttons">
-                <Button onClick={play}>Play</Button>
+                <Button onClick={play} hidden={!gameEnded}>Play</Button>
                 <br />
                 <Button
                     onClick={hit} hidden={gameEnded}>Hit</Button>
