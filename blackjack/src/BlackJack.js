@@ -6,18 +6,21 @@ import "react-awesome-button/dist/styles.css";
 // import TextBox from "./TextBox";
 import GameMessage from "./GameMessage";
 import './BlackJack.css';
+import Hand from "./Hand.js";
+import Card from "./Card.js";
 // import { useAuth } from "../../context/AuthContext";
 // import { useDatabase } from "../../context/DatabaseContext";
 
 
 let cardsOfDealer = [];
 let cardValuesOfDealer = [];
-function BlackJack(props) {
+function BlackJack() {
     // const { currentUser } = useAuth();
     // const { getEntry, userDatabase } = useDatabase();
 
     // const [profileInfo, setProfileInfo] = useState({
     //     bio: "", name: "", age: "", matches: []});
+    let dealerHand = [-1, -1];
     const sumOfValues = 364;
 
     const [deck, setDeck] = useState([]);
@@ -26,6 +29,9 @@ function BlackJack(props) {
 
     const [cardsOfPlayer, setCardsOfPlayer] = useState([]);
     const [cardValuesOfPlayer, setCardValuesOfPlayer] = useState([]);
+    //todo change these initial values
+    //change to zero?
+    let [playerHand, setPlayerHand] = useState([-1, -1]);
 
     const [riskPropensityScore, setRiskPropensityScore] = useState(0);
 
@@ -55,6 +61,7 @@ function BlackJack(props) {
         let cardsToAdd = [];
         let cardsOfPerson = [];
         let cardsValuesOfPerson = [];
+        let chosenKeys = [];
 
         for (let i = 0; i < numCards; i++) {
             let randIndex = Math.floor(Math.random() * deck.length);
@@ -64,10 +71,11 @@ function BlackJack(props) {
 
             cardsValuesOfPerson.push(chosenCardKey % 13 + 1);
             cardsOfPerson.push(chosenCard);
+            chosenKeys.push(chosenCardKey + 1);
         }
-
         cardsToAdd.push(cardsOfPerson);
         cardsToAdd.push(cardsValuesOfPerson);
+        cardsToAdd.push(chosenKeys);
 
         return cardsToAdd;
     }
@@ -75,6 +83,7 @@ function BlackJack(props) {
     // TODO: Currently coded for the purpose of displaying as text message, but should change it
     // to make it easier to find the right graphics to display
     function cardFromKey(key) {
+        console.log(key);
         let card = "";
 
         let cardNumber = key % 13 + 1;
@@ -167,6 +176,9 @@ function BlackJack(props) {
         let playerCardsAndValues = setUpCards(1);
         setCardsOfPlayer(cardsOfPlayer.concat(playerCardsAndValues[0]));
         setCardValuesOfPlayer(cardValuesOfPlayer.concat(playerCardsAndValues[1]));
+        console.log(playerCardsAndValues[0][0])
+        playerHand.push(playerCardsAndValues[2][0]);
+        console.log(playerHand);
         // update riskpropensityScore here
         // setRiskPropensityScore(calculateRisk());
     }
@@ -255,18 +267,20 @@ function BlackJack(props) {
         <div className="cards">
             <GameMessage text={"Dealer's cards: "} />
             <GameMessage text={cardsOfDealer} />
+            <Hand cards={dealerHand} />
             <br />
             <GameMessage text={"Player's cards: "} />
             <GameMessage text={cardsOfPlayer} />
+            <Hand cards={playerHand} />
             <br />
         </div>
         <div className="buttons">
-            <Button onPress={play}>Play</Button>
+            <Button onClick={play}>Play</Button>
             <br />
             <Button
-                onPress={hit}>Hit</Button>
+                onClick={hit}>Hit</Button>
             <br />
-            <Button onPress={stand}>Stand</Button>
+            <Button onClick={stand}>Stand</Button>
             <br />
             <GameMessage text={whoWon} />
         </div>
