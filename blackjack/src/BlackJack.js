@@ -22,9 +22,12 @@ function BlackJack() {
     // const [profileInfo, setProfileInfo] = useState({
     //     bio: "", name: "", age: "", matches: []});
     // let dealerHand = [-1, -1];
+
+    // Sum of all values in a deck of card 4(1 + 2 + ... + 13).
     const sumOfValues = 364;
 
     const [deck, setDeck] = useState([]);
+    const [gameEnded, setGameEnded] = useState(true);
 
     const [whoWon, setWhoWon] = useState("");
 
@@ -46,6 +49,7 @@ function BlackJack() {
     function play() {
         setDeck(Array.from(Array(52).keys()));
         setWhoWon("");
+        setGameEnded(false);
     }
 
     function setUpBoard() {
@@ -163,6 +167,7 @@ function BlackJack() {
         const player = calculateScore(cardValuesOfPlayer);
         if (player > 21) {
             // update database for user's risk propensity score with final risk propensity score
+            setGameEnded(true);
             setWhoWon("You Lose :(");
         }
     }
@@ -205,13 +210,17 @@ function BlackJack() {
 
 
     function hit() {
-        let playerCardsAndValues = setUpCards(1);
-        setCardsOfPlayer(cardsOfPlayer.concat(playerCardsAndValues[0]));
-        setCardValuesOfPlayer(cardValuesOfPlayer.concat(playerCardsAndValues[1]));
-        console.log(playerCardsAndValues[0][0])
-        setPlayerHand(playerHand.concat(playerCardsAndValues[2]));
-        // playerHand.push(playerCardsAndValues[2][0]);
-        console.log(playerHand);
+        if (gameEnded) {
+            setWhoWon("Press play first");
+        } else {
+            let playerCardsAndValues = setUpCards(1);
+            setCardsOfPlayer(cardsOfPlayer.concat(playerCardsAndValues[0]));
+            setCardValuesOfPlayer(cardValuesOfPlayer.concat(playerCardsAndValues[1]));
+            console.log(playerCardsAndValues[0][0])
+            setPlayerHand(playerHand.concat(playerCardsAndValues[2]));
+            // playerHand.push(playerCardsAndValues[2][0]);
+            console.log(playerHand);
+        }
         // update riskpropensityScore here
         // setRiskPropensityScore(calculateRisk());
     }
@@ -249,6 +258,7 @@ function BlackJack() {
     function checkGameResults() {
         const dealer = calculateScore(cardValuesOfDealer);
         const player = calculateScore(cardValuesOfPlayer);
+        setGameEnded(true);
         if (player > 21 || (dealer < 22 && dealer >= player)) {
             // update database for user's risk propensity score with final risk propensity score
             setWhoWon("You Lose :(");
@@ -263,22 +273,23 @@ function BlackJack() {
         // setPlayerStand(true);
         // setDealerScore(calculateScore(cardValuesOfDealer));
         // setDealerHand(realDealerHand);
-        dealerHand = realDealerHand;
-        while (calculateScore(cardValuesOfDealer) < 17) {
-            let dealerCardsAndValues = setUpCards(1);
-            cardsOfDealer = cardsOfDealer.concat(dealerCardsAndValues[0]);
-            cardValuesOfDealer = cardValuesOfDealer.concat(dealerCardsAndValues[1]);
-            // setDealerHand(dealerHand.concat(dealerCardsAndValues[2]));
-            // setDealerHand(realDealerHand.concat(dealerCardsAndValues[2]));
-            // realDealerHand = realDealerHand.concat(dealerCardsAndValues[2]);
-            dealerHand = dealerHand.concat(dealerCardsAndValues[2]);
-            // setCardsOfDealer(cardsOfDealer.concat(dealerCardsAndValues[0]));
-            // setCardValuesOfDealer(cardValuesOfDealer.concat(dealerCardsAndValues[1]));
+        if (gameEnded) {
+            setWhoWon("Press play first");
+        } else {
+            dealerHand = realDealerHand;
+            while (calculateScore(cardValuesOfDealer) < 17) {
+                let dealerCardsAndValues = setUpCards(1);
+                cardsOfDealer = cardsOfDealer.concat(dealerCardsAndValues[0]);
+                cardValuesOfDealer = cardValuesOfDealer.concat(dealerCardsAndValues[1]);
+                // setDealerHand(dealerHand.concat(dealerCardsAndValues[2]));
+                // setDealerHand(realDealerHand.concat(dealerCardsAndValues[2]));
+                // realDealerHand = realDealerHand.concat(dealerCardsAndValues[2]);
+                dealerHand = dealerHand.concat(dealerCardsAndValues[2]);
+                // setCardsOfDealer(cardsOfDealer.concat(dealerCardsAndValues[0]));
+                // setCardValuesOfDealer(cardValuesOfDealer.concat(dealerCardsAndValues[1]));
+                checkGameResults();
+            }
         }
-
-        // dealerHand = realDealerHand;
-
-        checkGameResults();
     }
 
     /**
@@ -313,7 +324,6 @@ function BlackJack() {
                 <GameMessage text={"Player's cards: "} />
                 <GameMessage text={cardsOfPlayer} />
                 <Hand cards={playerHand} />
-                <br />
             </div>
             <div className="buttons">
                 <Button onClick={play}>Play</Button>

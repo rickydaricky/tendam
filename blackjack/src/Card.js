@@ -20,7 +20,7 @@ function Card(props) {
             return (
             <div className="HiddenCard">
                 <img src={cardBack}
-                     alt={"plz work"} className={"plz work"} height={200} width={200}/>
+                     alt={"plz work"} className={"plz work"} height={200} width={150}/>
                 {/*<img src={'https://images.app.goo.gl/meSznKbMDasJ3YFA8'} />*/}
             </div>)
         }
@@ -31,7 +31,7 @@ function Card(props) {
             return (
                 <div className="Card">
                     <img src={process.env.PUBLIC_URL + path}
-                         alt={"plz work"} className={"plz work"} height={200} width={200}/>
+                         alt={"plz work"} className={"plz work"} height={200} width={150}/>
                     {/*<img src={'https://images.app.goo.gl/meSznKbMDasJ3YFA8'} />*/}
                 </div>)
             //     let key = props.text;
