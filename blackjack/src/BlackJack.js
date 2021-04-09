@@ -287,8 +287,8 @@ function BlackJack() {
                 dealerHand = dealerHand.concat(dealerCardsAndValues[2]);
                 // setCardsOfDealer(cardsOfDealer.concat(dealerCardsAndValues[0]));
                 // setCardValuesOfDealer(cardValuesOfDealer.concat(dealerCardsAndValues[1]));
-                checkGameResults();
             }
+            checkGameResults();
         }
     }
 
@@ -329,9 +329,9 @@ function BlackJack() {
                 <Button onClick={play}>Play</Button>
                 <br />
                 <Button
-                    onClick={hit}>Hit</Button>
+                    onClick={hit} hidden={gameEnded}>Hit</Button>
                 <br />
-                <Button onClick={stand}>Stand</Button>
+                <Button onClick={stand} hidden={gameEnded}>Stand</Button>
                 <br />
                 <GameMessage text={whoWon} />
             </div>
