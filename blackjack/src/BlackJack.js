@@ -7,20 +7,21 @@ import "react-awesome-button/dist/styles.css";
 import GameMessage from "./GameMessage";
 import './BlackJack.css';
 import Hand from "./Hand.js";
-import Card from "./Card.js";
 // import { useAuth } from "../../context/AuthContext";
 // import { useDatabase } from "../../context/DatabaseContext";
 
 
 let cardsOfDealer = [];
 let cardValuesOfDealer = [];
+let realDealerHand = [];
+let dealerHand = [-1, -1];
 function BlackJack() {
     // const { currentUser } = useAuth();
     // const { getEntry, userDatabase } = useDatabase();
 
     // const [profileInfo, setProfileInfo] = useState({
     //     bio: "", name: "", age: "", matches: []});
-    let dealerHand = [-1, -1];
+    // let dealerHand = [-1, -1];
     const sumOfValues = 364;
 
     const [deck, setDeck] = useState([]);
@@ -32,6 +33,7 @@ function BlackJack() {
     //todo change these initial values
     //change to zero?
     let [playerHand, setPlayerHand] = useState([-1, -1]);
+    // let [dealerHand, setDealerHand] = useState([-1, -1]);
 
     const [riskPropensityScore, setRiskPropensityScore] = useState(0);
 
@@ -55,6 +57,11 @@ function BlackJack() {
         cardValuesOfDealer = dealerCardsAndValues[1];
         // setCardValuesOfDealer(dealerCardsAndValues[1]);
         setCardValuesOfPlayer(playerCardsAndValues[1]);
+        realDealerHand = dealerCardsAndValues[2];
+        dealerHand = [dealerCardsAndValues[2][0], -1];
+        // dealerHand = dealerHand.push(dealerCardsAndValues[2][0]);
+        // dealerHand = dealerHand.push(-1);
+        setPlayerHand(playerCardsAndValues[2]);
     }
 
     function setUpCards(numCards) {
@@ -71,7 +78,8 @@ function BlackJack() {
 
             cardsValuesOfPerson.push(chosenCardKey % 13 + 1);
             cardsOfPerson.push(chosenCard);
-            chosenKeys.push(chosenCardKey + 1);
+            chosenKeys.push(parseInt(chosenCardKey));
+            // chosenKeys.push(parseInt(chosenCardKey) + 1);
         }
         cardsToAdd.push(cardsOfPerson);
         cardsToAdd.push(cardsValuesOfPerson);
@@ -160,15 +168,39 @@ function BlackJack() {
     }
 
     function calculateScore(cards) {
-        let score = 0;
+        let possibleScores = [0];
         for (let i = 0; i < cards.length; i++) {
             if (cards[i] === 11 || cards[i] === 12 || cards[i] === 13) {
-                score += 10;
+                for (let j = 0; j < possibleScores.length; j++) {
+                    possibleScores[j] = possibleScores[j] + 10;
+                }
+            } else if (cards[i] === 1) {
+                let tentativeScores = [];
+                for (let j = 0; j < possibleScores.length; j++) {
+                    tentativeScores.push(possibleScores[j] + 1);
+                    tentativeScores.push(possibleScores[j] + 11);
+                    // possibleScores[j] = possibleScores[j] + 10;
+                }
+                possibleScores = tentativeScores;
             } else {
-                score += cards[i];
+                for (let j = 0; j < possibleScores.length; j++) {
+                    possibleScores[j] = possibleScores[j] + cards[i];
+                }
             }
         }
+        let score = bestScore(possibleScores);
         return score;
+    }
+
+    function bestScore(scores) {
+        if (scores.length === 0) return 0;
+        let best = scores[0];
+        for (let i = 0; i < scores.length; i++) {
+            if (scores[i] > best && scores[i] <= 21) {
+                best = scores[i];
+            }
+        }
+        return best;
     }
 
 
@@ -177,7 +209,8 @@ function BlackJack() {
         setCardsOfPlayer(cardsOfPlayer.concat(playerCardsAndValues[0]));
         setCardValuesOfPlayer(cardValuesOfPlayer.concat(playerCardsAndValues[1]));
         console.log(playerCardsAndValues[0][0])
-        playerHand.push(playerCardsAndValues[2][0]);
+        setPlayerHand(playerHand.concat(playerCardsAndValues[2]));
+        // playerHand.push(playerCardsAndValues[2][0]);
         console.log(playerHand);
         // update riskpropensityScore here
         // setRiskPropensityScore(calculateRisk());
@@ -229,13 +262,21 @@ function BlackJack() {
     function stand() {
         // setPlayerStand(true);
         // setDealerScore(calculateScore(cardValuesOfDealer));
+        // setDealerHand(realDealerHand);
+        dealerHand = realDealerHand;
         while (calculateScore(cardValuesOfDealer) < 17) {
             let dealerCardsAndValues = setUpCards(1);
             cardsOfDealer = cardsOfDealer.concat(dealerCardsAndValues[0]);
             cardValuesOfDealer = cardValuesOfDealer.concat(dealerCardsAndValues[1]);
+            // setDealerHand(dealerHand.concat(dealerCardsAndValues[2]));
+            // setDealerHand(realDealerHand.concat(dealerCardsAndValues[2]));
+            // realDealerHand = realDealerHand.concat(dealerCardsAndValues[2]);
+            dealerHand = dealerHand.concat(dealerCardsAndValues[2]);
             // setCardsOfDealer(cardsOfDealer.concat(dealerCardsAndValues[0]));
             // setCardValuesOfDealer(cardValuesOfDealer.concat(dealerCardsAndValues[1]));
         }
+
+        // dealerHand = realDealerHand;
 
         checkGameResults();
     }
@@ -264,26 +305,26 @@ function BlackJack() {
 `;
     return (
         <div className="body">
-        <div className="cards">
-            <GameMessage text={"Dealer's cards: "} />
-            <GameMessage text={cardsOfDealer} />
-            <Hand cards={dealerHand} />
-            <br />
-            <GameMessage text={"Player's cards: "} />
-            <GameMessage text={cardsOfPlayer} />
-            <Hand cards={playerHand} />
-            <br />
-        </div>
-        <div className="buttons">
-            <Button onClick={play}>Play</Button>
-            <br />
-            <Button
-                onClick={hit}>Hit</Button>
-            <br />
-            <Button onClick={stand}>Stand</Button>
-            <br />
-            <GameMessage text={whoWon} />
-        </div>
+            <div className="cards">
+                <GameMessage text={"Dealer's cards: "} />
+                <GameMessage text={cardsOfDealer} />
+                <Hand cards={dealerHand} />
+                <br />
+                <GameMessage text={"Player's cards: "} />
+                <GameMessage text={cardsOfPlayer} />
+                <Hand cards={playerHand} />
+                <br />
+            </div>
+            <div className="buttons">
+                <Button onClick={play}>Play</Button>
+                <br />
+                <Button
+                    onClick={hit}>Hit</Button>
+                <br />
+                <Button onClick={stand}>Stand</Button>
+                <br />
+                <GameMessage text={whoWon} />
+            </div>
         </div>
 
     )

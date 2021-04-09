@@ -14,7 +14,6 @@ function Hand(props) {
 
 //
     function cards() {
-        console.log(props.cards);
         let cardSet = Array.from(props.cards)
         return (cardSet.map(x =>
             <div className='column' >

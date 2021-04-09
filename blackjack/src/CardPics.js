@@ -2,7 +2,7 @@ import './App.css';
 
     let images = new Map();
     let c = 52;
-    for (let i = 1; i <= c; i++) {
+    for (let i = 0; i < c; i++) {
         let card = "";
         let cardNumber = i % 13 + 1;
         if (cardNumber === 1) {
