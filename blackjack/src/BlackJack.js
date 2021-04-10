@@ -21,7 +21,6 @@ function BlackJack() {
 
     // const [profileInfo, setProfileInfo] = useState({
     //     bio: "", name: "", age: "", matches: []});
-    // let dealerHand = [-1, -1];
 
     // Sum of all values in a deck of card 4(1 + 2 + ... + 13).
     const sumOfValues = 364;
