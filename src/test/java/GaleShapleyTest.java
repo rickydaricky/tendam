@@ -1,5 +1,4 @@
 import edu.brown.cs.student.algorithm.GaleShapley;
-import edu.brown.cs.student.algorithm.HasRanking;
 import edu.brown.cs.student.algorithm.Person;
 import edu.brown.cs.student.algorithm.PropertyBasedTesting;
 import org.junit.After;
@@ -7,15 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 
