@@ -1,6 +1,7 @@
 import edu.brown.cs.student.algorithm.GaleShapley;
 import edu.brown.cs.student.algorithm.HasRanking;
 import edu.brown.cs.student.algorithm.Person;
+import edu.brown.cs.student.algorithm.PropertyBasedTesting;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,106 +87,139 @@ public class GaleShapleyTest {
     assertEquals(pairings, testPairings);
   }
 
-  // PBT
+  @Test
+  public void testAlgoSelfLimitedPreference() {
+    Person p1 = new Person(1, List.of(2, 5));
+    Person p2 = new Person(2, List.of(4, 1, 3));
+    Person p3 = new Person(3, List.of(4, 5, 2));
+    Person p4 = new Person(4, List.of(5, 3, 2));
+    Person p5 = new Person(5, List.of(1, 4, 3));
 
-  /**
-   * Generate a list of preferences for ids numbered 0 (inclusive) to n (exclusive).
-   *
-   * All items will be included in this preference list.
-   *
-   * @param n an upper bound for person ids
-   * @return a list of preferences
-   */
-  public static List<Integer> prefsList(int n) {
-    Random r = new Random();
-    int nElements = r.nextInt(n + 1);
-    List<Integer> preferences = IntStream.range(0, n).boxed().collect(Collectors.toList());
-    Collections.shuffle(preferences);
-    return preferences;
-    // If the preference list can be shortened:
-    // return preferences.subList(0, nElements);
-  }
+    List<Person> people = List.of(p1, p2, p3, p4, p5);
 
-  /**
-   * Generates n people with preferences for each other.
-   * @param n the number of people to generate
-   * @return a map of id -> Person with n elements
-   */
-  public Map<String, Person> generatePeople(int n) {
-    Map<String, Person> personList = new HashMap<>();
-    for (int i = 0; i < n; i++) {
-      List<Integer> prefs = prefsList(n).stream().map(Integer::valueOf).collect(Collectors.toList());
-      personList.put(String.valueOf(i), new Person(i, prefs));
+    Map<Person, Person> pairings = Map.of(p1, p2, p4, p5, p5, p4, p2, p1);
+//    Map<Integer, Integer> pairings = Map.of(p1.getID(), p2.getID(), p4.getID(), p5.getID(),
+//            p5.getID(), p4.getID(), p2.getID(), p1.getID());
+    Map<Person, Person> testPairings = GaleShapley.galeShapleyAlgo(people, people);
+    Map<Integer, Integer> testPairingsResult = new HashMap<>();
+
+    for (Map.Entry<Person,Person> entry : testPairings.entrySet()) {
+//      System.out.println(entry.getKey().getID());
+//      System.out.println(entry.getValue().getID());
+      testPairingsResult.put(entry.getKey().getID(), entry.getValue().getID());
     }
-    return personList;
-  }
+    
 
-  /**
-   * Assert that all choosing and chosen objects are paired.
-   *
-   * @param choosing a list of objects which choose elements
-   * @param chosen a list of objects which can be chosen
-   * @param pairings the map of choosing -> chosen pairings
-   * @param <T> the type of hasRanking paired
-   */
-  public <T extends HasRanking<T>> void assertAllPaired(Collection<T> choosing, Collection<T> chosen,
-                                                        Map<T, T> pairings) {
-    // Check that all choosers and chosen are paired up as expected
-    Set<Integer> choosingIds = choosing.stream().map(HasRanking::getID).collect(Collectors.toSet());
-    Set<Integer> chosenIds = chosen.stream().map(HasRanking::getID).collect(Collectors.toSet());
-    Set<Integer> actualChoosingIds =
-        pairings.keySet().stream().map(HasRanking::getID).collect(Collectors.toSet());
-    Set<Integer> actualChosenIds =
-        pairings.values().stream().map(HasRanking::getID).collect(Collectors.toSet());
-    assertEquals(choosingIds, actualChoosingIds);
-    assertEquals(chosenIds, actualChosenIds);
-  }
-
-  /**
-   * Asserts whether all pairings are stable.
-   *
-   * @param chosens an id -> hasRanking map of choosable elements
-   * @param pairings the chooser -> chosen map of pairings
-   * @param <T> the type of hasRanking paired
-   */
-  public <T extends HasRanking<T>> void assertStable(Map<String, T> chosens,
-                                                     Map<T, T> pairings) {
-    // First construct the reverse mapping
-    Map<T, T> reversePairings = new HashMap<>();
-    for (Map.Entry<T, T> entry : pairings.entrySet()) {
-      reversePairings.put(entry.getValue(), entry.getKey());
-    }
-    // Check every pairing
-    for (Map.Entry<T, T> entry : pairings.entrySet()) {
-      T choosing = entry.getKey();
-      T chosen = entry.getValue();
-      int rankingLimit = choosing.getRanking(chosen.getID());
-      // Check all with a better preference to see if they match
-      List<Integer> betterChoiceIDs = choosing.getRankings().subList(0, rankingLimit);
-      for (Integer betterID : betterChoiceIDs) {
-        T betterChoice = chosens.get(betterID);
-        T currentChooser = reversePairings.get(betterChoice);
-        // Assert that betterChoice's currentChooser is as preferred than the current
-        int currentRanking = betterChoice.getRanking(currentChooser.getID());
-        int testRanking = betterChoice.getRanking(choosing.getID());
-        assertTrue(currentRanking <= testRanking);
-      }
-    }
+    // assertEquals(pairings, testPairings);
   }
 
   @Test
-  public void testProperties() {
-    final Random r = new Random();
-    final int ITERATIONS = 1000;
-    final int SIZE_BOUND = 15;
-    for (int i = 0; i < ITERATIONS; i++) {
-      int size = r.nextInt(SIZE_BOUND);
-      Map<String, Person> choosing = generatePeople(size);
-      Map<String, Person> chosen = generatePeople(size);
-      Map<Person, Person> pairs = GaleShapley
-          .galeShapleyAlgo(new ArrayList<>(choosing.values()), new ArrayList<>(chosen.values()));
-      assertAllPaired(choosing.values(), chosen.values(), pairs);
-      assertStable(chosen, pairs);
-    }
+  public void galeShapleyPBT() {
+    PropertyBasedTesting pbt = new PropertyBasedTesting();
+    assertTrue(pbt.nTrials(50, 100));
   }
+
+//
+//  // PBT
+//
+//  /**
+//   * Generate a list of preferences for ids numbered 0 (inclusive) to n (exclusive).
+//   *
+//   * All items will be included in this preference list.
+//   *
+//   * @param n an upper bound for person ids
+//   * @return a list of preferences
+//   */
+//  public static List<Integer> prefsList(int n) {
+//    Random r = new Random();
+//    int nElements = r.nextInt(n + 1);
+//    List<Integer> preferences = IntStream.range(0, n).boxed().collect(Collectors.toList());
+//    Collections.shuffle(preferences);
+//    return preferences;
+//    // If the preference list can be shortened:
+//    // return preferences.subList(0, nElements);
+//  }
+//
+//  /**
+//   * Generates n people with preferences for each other.
+//   * @param n the number of people to generate
+//   * @return a map of id -> Person with n elements
+//   */
+//  public Map<String, Person> generatePeople(int n) {
+//    Map<String, Person> personList = new HashMap<>();
+//    for (int i = 0; i < n; i++) {
+//      List<Integer> prefs = prefsList(n).stream().map(Integer::valueOf).collect(Collectors.toList());
+//      personList.put(String.valueOf(i), new Person(i, prefs));
+//    }
+//    return personList;
+//  }
+//
+//  /**
+//   * Assert that all choosing and chosen objects are paired.
+//   *
+//   * @param choosing a list of objects which choose elements
+//   * @param chosen a list of objects which can be chosen
+//   * @param pairings the map of choosing -> chosen pairings
+//   * @param <T> the type of hasRanking paired
+//   */
+//  public <T extends HasRanking<T>> void assertAllPaired(Collection<T> choosing, Collection<T> chosen,
+//                                                        Map<T, T> pairings) {
+//    // Check that all choosers and chosen are paired up as expected
+//    Set<Integer> choosingIds = choosing.stream().map(HasRanking::getID).collect(Collectors.toSet());
+//    Set<Integer> chosenIds = chosen.stream().map(HasRanking::getID).collect(Collectors.toSet());
+//    Set<Integer> actualChoosingIds =
+//        pairings.keySet().stream().map(HasRanking::getID).collect(Collectors.toSet());
+//    Set<Integer> actualChosenIds =
+//        pairings.values().stream().map(HasRanking::getID).collect(Collectors.toSet());
+//    assertEquals(choosingIds, actualChoosingIds);
+//    assertEquals(chosenIds, actualChosenIds);
+//  }
+//
+//  /**
+//   * Asserts whether all pairings are stable.
+//   *
+//   * @param chosens an id -> hasRanking map of choosable elements
+//   * @param pairings the chooser -> chosen map of pairings
+//   * @param <T> the type of hasRanking paired
+//   */
+//  public <T extends HasRanking<T>> void assertStable(Map<String, T> chosens,
+//                                                     Map<T, T> pairings) {
+//    // First construct the reverse mapping
+//    Map<T, T> reversePairings = new HashMap<>();
+//    for (Map.Entry<T, T> entry : pairings.entrySet()) {
+//      reversePairings.put(entry.getValue(), entry.getKey());
+//    }
+//    // Check every pairing
+//    for (Map.Entry<T, T> entry : pairings.entrySet()) {
+//      T choosing = entry.getKey();
+//      T chosen = entry.getValue();
+//      int rankingLimit = choosing.getRanking(chosen.getID());
+//      // Check all with a better preference to see if they match
+//      List<Integer> betterChoiceIDs = choosing.getRankings().subList(0, rankingLimit);
+//      for (Integer betterID : betterChoiceIDs) {
+//        T betterChoice = chosens.get(betterID);
+//        T currentChooser = reversePairings.get(betterChoice);
+//        // Assert that betterChoice's currentChooser is as preferred than the current
+//        int currentRanking = betterChoice.getRanking(currentChooser.getID());
+//        int testRanking = betterChoice.getRanking(choosing.getID());
+//        assertTrue(currentRanking <= testRanking);
+//      }
+//    }
+//  }
+//
+//  @Test
+//  public void testProperties() {
+//    final Random r = new Random();
+//    final int ITERATIONS = 1000;
+//    final int SIZE_BOUND = 15;
+//    for (int i = 0; i < ITERATIONS; i++) {
+//      int size = r.nextInt(SIZE_BOUND);
+//      Map<String, Person> choosing = generatePeople(size);
+//      Map<String, Person> chosen = generatePeople(size);
+//      Map<Person, Person> pairs = GaleShapley
+//          .galeShapleyAlgo(new ArrayList<>(choosing.values()), new ArrayList<>(chosen.values()));
+//      assertAllPaired(choosing.values(), chosen.values(), pairs);
+//      assertStable(chosen, pairs);
+//    }
+//  }
 }

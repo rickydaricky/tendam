@@ -46,7 +46,8 @@ public class GaleShapley {
               // (one, two) become engaged
               pairings.put(one, two);
               reversePairings.put(two, one);
-              pairings.put(onePrime, null);
+              // pairings.put(onePrime, null);
+              pairings.remove(onePrime);
               freeOne.offer(onePrime);
               notMatched = false;
               // onePrime becomes free
