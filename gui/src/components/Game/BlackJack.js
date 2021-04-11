@@ -213,7 +213,7 @@ function BlackJack() {
                 if (currentScore === -1) {
                     setGameData(currentUser.uid, "blackjack-score", riskScore);
                 } else {
-                    let newScore = (currentScore * currentNumGamesPlayed + riskScore) / (currentNumGamesPlayed);
+                    let newScore = (currentScore * (currentNumGamesPlayed - 1) + riskScore) / (currentNumGamesPlayed);
                     setGameData(currentUser.uid, "blackjack-score", newScore);
                 }
             }
@@ -222,7 +222,7 @@ function BlackJack() {
                 if (currentScore === -1) {
                     setGameData(currentUser.uid, "blackjack-score", highestRiskScore);
                 } else {
-                    let newScore = (currentScore * currentNumGamesPlayed + highestRiskScore) / (currentNumGamesPlayed);
+                    let newScore = (currentScore * (currentNumGamesPlayed - 1) + highestRiskScore) / (currentNumGamesPlayed);
                     setGameData(currentUser.uid, "blackjack-score", newScore);
                 }
             }
@@ -339,7 +339,6 @@ function BlackJack() {
             </div>
             
             {/* For debugging purposes
-            
             <Button variant="contained" color="primary" onClick={handleScore}>get score</Button>
             <Button variant="contained" color="primary" onClick={handleNumGamesPlayed}>get games played</Button>
             <Button variant="contained" color="primary" onClick={resetScoreData}>reset score data</Button>
