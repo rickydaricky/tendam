@@ -110,7 +110,22 @@ public class GaleShapleyTest {
     }
     
 
-    // assertEquals(pairings, testPairings);
+    assertEquals(pairings, testPairings);
+  }
+
+  @Test
+  public void edgeCase() {
+    Person p1 = new Person(1, new ArrayList<>());
+    Person p2 = new Person(2, new ArrayList<>());
+    Person p3 = new Person(3, new ArrayList<>());
+    Person p4 = new Person(4, new ArrayList<>());
+    Person p5 = new Person(5, new ArrayList<>());
+
+    List<Person> people = List.of(p1, p2, p3, p4, p5);
+
+    Map<Person, Person> pairings = new HashMap<>();
+    Map<Person, Person> testPairings = GaleShapley.galeShapleyAlgo(people, people);
+    assertEquals(pairings, testPairings);
   }
 
   @Test
