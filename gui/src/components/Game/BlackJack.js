@@ -14,9 +14,6 @@ function BlackJack() {
     const { currentUser } = useAuth();
     const { getGameData, setGameData } = useDatabase();
 
-    // Sum of all values in a deck of card 4(1 + 2 + ... + 13).
-    const sumOfValues = 364;
-
     const [deck, setDeck] = useState([]);
     const [gameEnded, setGameEnded] = useState(true);
 
@@ -177,7 +174,7 @@ function BlackJack() {
 
     function hit() {
         if (gameEnded) {
-            setWhoWon("Press play first");
+            setWhoWon("Press play to start!");
         } else {
             let playerCardsAndValues = setUpCards(1);
             setCardsOfPlayer(cardsOfPlayer.concat(playerCardsAndValues[0]));
@@ -188,9 +185,15 @@ function BlackJack() {
         setHighestRiskScore(calculateRiskScore());
     }
 
+    async function cancelGame() {
+        setGameEnded(true);
+        setWhoWon("Press play to start!");
+        let currentNumGamesPlayed = await getGameData(currentUser.uid, "blackjack-games-played");
+        setGameData(currentUser.uid, "blackjack-games-played", currentNumGamesPlayed - 1);
+    }
+
     // Calculates probability that a new card will make the hand go over 21.
     function calculateRiskScore() {
-        let remainingSum = sumOfValues;
         const maxBeforeBust = 21 - calculateScore(cardValuesOfPlayer);
         let count = 0;
         for (let i = 0; i < deck.length; i++) {
@@ -332,12 +335,13 @@ function BlackJack() {
                 <br />
                 <Button
                     onClick={hit} hidden={gameEnded}>Hit</Button>
-                <br />
                 <Button onClick={stand} hidden={gameEnded}>Stand</Button>
+                <br />
+                <Button onClick={cancelGame} hidden={gameEnded}>Stop Playing</Button>
                 <br />
                 <GameMessage text={whoWon} hidden={!gameEnded} />
             </div>
-            
+
             {/* For debugging purposes
             <Button variant="contained" color="primary" onClick={handleScore}>get score</Button>
             <Button variant="contained" color="primary" onClick={handleNumGamesPlayed}>get games played</Button>
